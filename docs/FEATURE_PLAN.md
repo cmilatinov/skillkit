@@ -55,6 +55,34 @@ skillkit add @opencode/rust-workflow
 skillkit add @community/git-pr-workflow
 ```
 
+## Git Registry Manifest
+
+Git registries expose their available skills with a root-level
+`skillkit.registry.toml` file. The file is a registry index for that repository:
+it lists the skills the repository provides and points each exposed skill name
+to the package directory that contains its `skillkit.toml`.
+
+```toml
+[registry]
+name = "community"
+description = "Community-maintained Skillkit registry"
+
+[[skills]]
+name = "git-pr-workflow"
+description = "Reusable Git and pull request workflow"
+package = "packages/git-pr-workflow"
+harnesses = ["generic", "codex", "claude", "opencode"]
+
+[[skills]]
+name = "rust-workflow"
+description = "Rust formatting, linting, and test workflow"
+package = "packages/rust-workflow"
+harnesses = ["generic", "opencode", "codex"]
+```
+
+For Git registries, the resolved lock identity is the registry repository commit
+hash plus the selected registry entry and package path.
+
 ## Harness Targets
 
 - Generic repo target: `.agents/skills`.
@@ -92,6 +120,7 @@ The lockfile should record:
 
 - package identity
 - requested version or selector
+- registry entry name and package path, when resolved through a registry
 - resolved source URL
 - source-specific resolved identity
 - added skill paths
@@ -128,7 +157,8 @@ MVP registry support should be simple:
 - Built-in registry aliases are always available: `codex`, `claude`, and
   `opencode`.
 - Registry package references use `@registry/skill-name`.
-- A Git-backed index repository stores package metadata.
+- A Git-backed registry repository stores package metadata in
+  `skillkit.registry.toml`.
 - Registry sources are named entries in the repo-local `skillkit.toml`.
 - `skillkit registry add` and `skillkit registry remove` only edit local project
   config; they do not modify the remote registry.
@@ -158,8 +188,8 @@ Start as one crate with clear modules, then split only when needed:
   resolution.
 - `target`: target directories, file ownership, lockfile writes.
 - `harness`: harness adapters for generic, Codex, Claude, and OpenCode targets.
-- `registry`: project registry config, index cache, search, and package
-  metadata workflows.
+- `registry`: project registry config, `skillkit.registry.toml` parsing, index
+  cache, search, and package metadata workflows.
 - `error`: shared error types and diagnostics.
 
 Likely dependencies:
@@ -177,9 +207,10 @@ Likely dependencies:
 3. Add from a GitHub repo path.
 4. Add `skillkit.lock` for reproducible repo-level adds.
 5. Add `skillkit registry add` and `skillkit registry remove`.
-6. Add Git-backed registry search and registry-backed adds.
-7. Add harness adapters for Codex, Claude, and OpenCode.
-8. Add signature verification.
+6. Read `skillkit.registry.toml` from Git-backed registries.
+7. Add Git-backed registry search and registry-backed adds.
+8. Add harness adapters for Codex, Claude, and OpenCode.
+9. Add signature verification.
 
 ## Open Decisions
 

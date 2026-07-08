@@ -37,4 +37,7 @@ skillkit add @claude/code-review
 skillkit add @opencode/rust-workflow
 ```
 
+Git registries expose their available skills with a root-level
+`skillkit.registry.toml` file.
+
 See [docs/FEATURE_PLAN.md](docs/FEATURE_PLAN.md) for the working feature plan.
