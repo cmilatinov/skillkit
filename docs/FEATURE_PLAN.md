@@ -19,7 +19,8 @@ harness.
 - A package can declare harness compatibility, required tools, MCP dependencies,
   license, authors, repository URL, and included skill paths.
 - Package identity should be stable: `publisher/name`.
-- Versions should use SemVer.
+- Requested versions can be arbitrary strings interpreted by the source that
+  resolves them.
 
 ## Manifest Sketch
 
@@ -67,7 +68,7 @@ keeping `.agents/skills` as the generic portable target.
   registry package.
 - `skillkit list`: show added packages and skills for a target.
 - `skillkit remove <name>`: remove an added package safely.
-- `skillkit update`: update packages according to version constraints.
+- `skillkit update`: update packages according to source-specific rules.
 - `skillkit search <query>`: search configured registries.
 - `skillkit registry add <name> <source>`: add a registry source to the
   repo-local `skillkit.toml`.
@@ -80,9 +81,10 @@ Skillkit should create `skillkit.lock` for repo-level adds.
 
 The lockfile should record:
 
-- package identity and version
+- package identity
+- requested version or selector
 - resolved source URL
-- commit SHA or source digest
+- source-specific resolved identity
 - added skill paths
 - target harness and destination directory
 
@@ -91,9 +93,20 @@ This makes team setups reproducible and gives CI a way to verify added skills.
 ## Version Strategy
 
 Skillkit should not silently track the latest version of a skill. `skillkit add`
-should resolve a version or source revision and record it in `skillkit.lock`.
-`skillkit update` should be the explicit command that moves an already-added
-package forward according to the configured version constraints.
+should resolve the requested version or selector and record a source-specific
+identity in `skillkit.lock`. `skillkit update` should be the explicit command
+that moves an already-added package forward according to the source's rules.
+
+Different sources can use different lock fields:
+
+- Git registry or Git source: lock the resolved commit hash.
+- OpenAI plugin source: lock the plugin version and marketplace identity.
+- Static URL source: lock the URL plus content digest.
+- Local path source: lock the path and, later, an optional content digest.
+
+The manifest can use arbitrary strings such as `latest`, `main`, `v1`,
+`0.1.0`, or a commit hash. The lockfile records what that string resolved to
+for the concrete source implementation.
 
 This keeps agent behavior reproducible. A skill update can change instructions,
 tool use, file-editing behavior, harness compatibility, or dependency
@@ -127,7 +140,8 @@ Start as one crate with clear modules, then split only when needed:
 - `cli`: clap command definitions and output formatting.
 - `manifest`: `skillkit.toml` parsing.
 - `skill`: `SKILL.md` discovery and frontmatter parsing.
-- `source`: local path, Git, GitHub, URL, and registry source resolution.
+- `source`: local path, Git, GitHub, URL, plugin, and registry source
+  resolution.
 - `target`: target directories, file ownership, lockfile writes.
 - `harness`: harness adapters for generic, Codex, Claude, and OpenCode targets.
 - `registry`: project registry config, index cache, search, and package
@@ -139,7 +153,6 @@ Likely dependencies:
 - `clap` for CLI parsing.
 - `serde`, `toml`, and `serde_yaml` for manifests and frontmatter.
 - `camino` for UTF-8 paths.
-- `semver` for versions.
 - `tempfile` for safe extraction.
 - `thiserror` or `miette` for diagnostics.
 
