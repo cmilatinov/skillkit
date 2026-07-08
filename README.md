@@ -2,8 +2,8 @@
 
 Skillkit is a Rust package manager for reusable Agent Skills.
 
-The goal is to make skills easy to create, validate, add, share, pin, and
-update across agent clients without locking the skill author into one host.
+The goal is to make skills easy to create, add, share, pin, and update across
+agent clients without locking the skill author into one host.
 
 ## Early Direction
 
@@ -19,8 +19,7 @@ update across agent clients without locking the skill author into one host.
 
 ```text
 skillkit init
-skillkit validate
-skillkit pack
+skillkit new
 skillkit add
 skillkit list
 skillkit update

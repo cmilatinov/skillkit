@@ -58,11 +58,8 @@ keeping `.agents/skills` as the generic portable target.
 
 - `skillkit init`: create `skillkit.toml` and an optional starter skill.
 - `skillkit new <name>`: create a new skill package from a template.
-- `skillkit validate`: check manifest, `SKILL.md` frontmatter, paths, size, and
-  portability warnings.
-- `skillkit pack`: create a deterministic package archive with checksums.
-- `skillkit add <source>`: add from local path, GitHub path, Git URL, archive
-  URL, or registry package.
+- `skillkit add <source>`: add from local path, GitHub path, Git URL, or
+  registry package.
 - `skillkit list`: show added packages and skills for a target.
 - `skillkit remove <name>`: remove an added package safely.
 - `skillkit update`: update packages according to version constraints.
@@ -76,7 +73,7 @@ The lockfile should record:
 
 - package identity and version
 - resolved source URL
-- commit SHA or archive digest
+- commit SHA or source digest
 - added skill paths
 - target host and destination directory
 
@@ -87,7 +84,6 @@ This makes team setups reproducible and gives CI a way to verify added skills.
 MVP registry support should be simple:
 
 - A Git-backed index repository stores package metadata.
-- Package archives can live in GitHub releases or another static host.
 - Search can work from a locally cached index.
 
 Later registry work can add an HTTP API, package ownership, download metrics,
@@ -96,8 +92,7 @@ and moderation.
 ## Safety
 
 - Never execute package scripts while adding a package.
-- Reject archives with path traversal or absolute paths.
-- Verify package checksums before adding files.
+- Reject package contents with path traversal or absolute paths.
 - Warn when skills declare external tool or MCP dependencies.
 - Support signatures before encouraging broad third-party package use.
 - Keep adds reversible by tracking owned files.
@@ -107,10 +102,9 @@ and moderation.
 Start as one crate with clear modules, then split only when needed:
 
 - `cli`: clap command definitions and output formatting.
-- `manifest`: `skillkit.toml` parsing and validation.
-- `skill`: `SKILL.md` discovery and frontmatter validation.
+- `manifest`: `skillkit.toml` parsing.
+- `skill`: `SKILL.md` discovery and frontmatter parsing.
 - `source`: local path, Git, GitHub, URL, and registry source resolution.
-- `package`: pack/unpack, checksums, and archive safety.
 - `target`: target directories, file ownership, lockfile writes.
 - `host`: host adapters for generic, Codex, Claude, and OpenCode targets.
 - `registry`: index cache, search, and package metadata workflows.
@@ -122,22 +116,18 @@ Likely dependencies:
 - `serde`, `toml`, and `serde_yaml` for manifests and frontmatter.
 - `camino` for UTF-8 paths.
 - `semver` for versions.
-- `sha2` for checksums.
-- `tar` and `zstd` for package archives.
 - `tempfile` for safe extraction.
 - `thiserror` or `miette` for diagnostics.
 
 ## MVP Milestones
 
-1. Validate a local skill package.
-2. Add a local package into `.agents/skills`.
-3. Track added files and remove packages cleanly.
-4. Add from a GitHub repo path.
-5. Add `skillkit.lock` for reproducible repo-level adds.
-6. Add deterministic `pack` output and checksum verification.
-7. Add Git-backed registry search and registry-backed adds.
-8. Add host adapters for Codex, Claude, and OpenCode.
-9. Add signature verification.
+1. Add a local package into `.agents/skills`.
+2. Track added files and remove packages cleanly.
+3. Add from a GitHub repo path.
+4. Add `skillkit.lock` for reproducible repo-level adds.
+5. Add Git-backed registry search and registry-backed adds.
+6. Add host adapters for Codex, Claude, and OpenCode.
+7. Add signature verification.
 
 ## Open Decisions
 
