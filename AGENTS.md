@@ -7,6 +7,6 @@ This is a Rust CLI project.
   `main.rs`.
 - Use existing Agent Skills conventions; do not invent an incompatible skill
   format unless there is no portable alternative.
-- Keep host-specific behavior behind adapter modules.
+- Keep harness-specific behavior behind adapter modules.
 - Run `cargo fmt`, `cargo test`, and `cargo clippy` when changing Rust code.
 - Update `docs/FEATURE_PLAN.md` when product scope or command behavior changes.
