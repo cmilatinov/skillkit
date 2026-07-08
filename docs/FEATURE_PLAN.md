@@ -3,8 +3,8 @@
 ## Product Goal
 
 Skillkit should be a practical package manager for Agent Skills: a tool that
-can install a skill from a local path, Git repo, URL, or registry into the
-right location for the agent client the user wants to use.
+can add a skill from a local path, Git repo, URL, or registry into the right
+location for the agent client the user wants to use.
 
 The key design constraint is portability. Skillkit should support standard
 skills without requiring authors to rewrite their content for every agent host.
@@ -40,7 +40,7 @@ claude = true
 opencode = true
 ```
 
-## Install Targets
+## Add Targets
 
 - Generic repo target: `.agents/skills`.
 - Generic user target: platform-appropriate user skills directory.
@@ -61,30 +61,26 @@ keeping `.agents/skills` as the generic portable target.
 - `skillkit validate`: check manifest, `SKILL.md` frontmatter, paths, size, and
   portability warnings.
 - `skillkit pack`: create a deterministic package archive with checksums.
-- `skillkit install <source>`: install from local path, GitHub path, Git URL,
-  archive URL, or registry package.
-- `skillkit list`: show installed packages and skills for a target.
-- `skillkit uninstall <name>`: remove an installed package safely.
+- `skillkit add <source>`: add from local path, GitHub path, Git URL, archive
+  URL, or registry package.
+- `skillkit list`: show added packages and skills for a target.
+- `skillkit remove <name>`: remove an added package safely.
 - `skillkit update`: update packages according to version constraints.
 - `skillkit search <query>`: search configured registries.
-- `skillkit publish`: publish a package to a registry or index.
-- `skillkit doctor`: inspect host paths, config, registry auth, and common
-  installation problems.
 
 ## Lockfile
 
-Skillkit should create `skillkit.lock` for repo installs.
+Skillkit should create `skillkit.lock` for repo-level adds.
 
 The lockfile should record:
 
 - package identity and version
 - resolved source URL
 - commit SHA or archive digest
-- installed skill paths
-- target host and install directory
+- added skill paths
+- target host and destination directory
 
-This makes team setups reproducible and gives CI a way to verify installed
-skills.
+This makes team setups reproducible and gives CI a way to verify added skills.
 
 ## Registry Strategy
 
@@ -93,19 +89,18 @@ MVP registry support should be simple:
 - A Git-backed index repository stores package metadata.
 - Package archives can live in GitHub releases or another static host.
 - Search can work from a locally cached index.
-- Publishing opens or updates index entries.
 
-Later registry work can add an HTTP API, authenticated publishing, package
-ownership, download metrics, and moderation.
+Later registry work can add an HTTP API, package ownership, download metrics,
+and moderation.
 
 ## Safety
 
-- Never execute package scripts during install.
+- Never execute package scripts while adding a package.
 - Reject archives with path traversal or absolute paths.
-- Verify package checksums before installing.
+- Verify package checksums before adding files.
 - Warn when skills declare external tool or MCP dependencies.
 - Support signatures before encouraging broad third-party package use.
-- Keep installs reversible by tracking owned files.
+- Keep adds reversible by tracking owned files.
 
 ## Rust Architecture
 
@@ -116,9 +111,9 @@ Start as one crate with clear modules, then split only when needed:
 - `skill`: `SKILL.md` discovery and frontmatter validation.
 - `source`: local path, Git, GitHub, URL, and registry source resolution.
 - `package`: pack/unpack, checksums, and archive safety.
-- `install`: target directories, file ownership, lockfile writes.
+- `target`: target directories, file ownership, lockfile writes.
 - `host`: host adapters for generic, Codex, Claude, and OpenCode targets.
-- `registry`: index cache, search, and publish workflows.
+- `registry`: index cache, search, and package metadata workflows.
 - `error`: shared error types and diagnostics.
 
 Likely dependencies:
@@ -135,21 +130,19 @@ Likely dependencies:
 ## MVP Milestones
 
 1. Validate a local skill package.
-2. Install a local package into `.agents/skills`.
-3. Track installed files and uninstall cleanly.
-4. Install from a GitHub repo path.
-5. Add `skillkit.lock` for reproducible repo installs.
+2. Add a local package into `.agents/skills`.
+3. Track added files and remove packages cleanly.
+4. Add from a GitHub repo path.
+5. Add `skillkit.lock` for reproducible repo-level adds.
 6. Add deterministic `pack` output and checksum verification.
-7. Add Git-backed registry search and install.
-8. Add publish workflow.
-9. Add host adapters for Codex, Claude, and OpenCode.
-10. Add signature verification.
+7. Add Git-backed registry search and registry-backed adds.
+8. Add host adapters for Codex, Claude, and OpenCode.
+9. Add signature verification.
 
 ## Open Decisions
 
 - Should packages be single-skill by default with multi-skill support, or
   multi-skill from the start?
-- Should the default install target be repo-local or user-local?
+- Should the default add target be repo-local or user-local?
 - Should Skillkit manage host-specific metadata files or only copy them through?
-- Should registry publishing require signed packages from day one?
 - Should `skillkit.toml` live outside standard skill folders in every case?
