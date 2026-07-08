@@ -34,10 +34,10 @@ license = "MIT"
 path = "skills/git-pr-workflow"
 
 [compat]
-generic_agents = true
+generic = true
 codex = true
 claude = true
-vscode = true
+opencode = true
 ```
 
 ## Install Targets
@@ -46,7 +46,13 @@ vscode = true
 - Generic user target: platform-appropriate user skills directory.
 - Codex target: repo or user skill locations supported by Codex.
 - Claude target: `.claude/skills` or user-level Claude skills.
+- OpenCode target: `.opencode/skills` or `~/.config/opencode/skills`.
 - Future host adapters can be added without changing the package format.
+
+OpenCode also discovers compatible skills from `.agents/skills`,
+`~/.agents/skills`, `.claude/skills`, and `~/.claude/skills`. Skillkit should
+prefer OpenCode-native paths when the target is explicitly OpenCode, while
+keeping `.agents/skills` as the generic portable target.
 
 ## Core Commands
 
@@ -111,7 +117,7 @@ Start as one crate with clear modules, then split only when needed:
 - `source`: local path, Git, GitHub, URL, and registry source resolution.
 - `package`: pack/unpack, checksums, and archive safety.
 - `install`: target directories, file ownership, lockfile writes.
-- `host`: host adapters for generic, Codex, Claude, and VS Code targets.
+- `host`: host adapters for generic, Codex, Claude, and OpenCode targets.
 - `registry`: index cache, search, and publish workflows.
 - `error`: shared error types and diagnostics.
 
@@ -136,7 +142,7 @@ Likely dependencies:
 6. Add deterministic `pack` output and checksum verification.
 7. Add Git-backed registry search and install.
 8. Add publish workflow.
-9. Add host adapters for Codex and Claude.
+9. Add host adapters for Codex, Claude, and OpenCode.
 10. Add signature verification.
 
 ## Open Decisions
