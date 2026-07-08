@@ -46,6 +46,15 @@ name = "community"
 source = "git+https://github.com/skillkit/registry.git"
 ```
 
+Registry package references use `@registry/skill-name`:
+
+```text
+skillkit add @codex/github
+skillkit add @claude/code-review
+skillkit add @opencode/rust-workflow
+skillkit add @community/git-pr-workflow
+```
+
 ## Harness Targets
 
 - Generic repo target: `.agents/skills`.
@@ -65,7 +74,7 @@ keeping `.agents/skills` as the generic portable target.
 - `skillkit init`: create `skillkit.toml` and an optional starter skill.
 - `skillkit new <name>`: create a new skill package from a template.
 - `skillkit add <source>`: add from local path, GitHub path, Git URL, or
-  registry package.
+  registry package such as `@codex/github`.
 - `skillkit list`: show added packages and skills for a target.
 - `skillkit remove <name>`: remove an added package safely.
 - `skillkit update`: update packages according to source-specific rules.
@@ -116,10 +125,15 @@ requirements, so teams need a reviewable change when a skill version moves.
 
 MVP registry support should be simple:
 
+- Built-in registry aliases are always available: `codex`, `claude`, and
+  `opencode`.
+- Registry package references use `@registry/skill-name`.
 - A Git-backed index repository stores package metadata.
 - Registry sources are named entries in the repo-local `skillkit.toml`.
 - `skillkit registry add` and `skillkit registry remove` only edit local project
   config; they do not modify the remote registry.
+- `skillkit registry remove` only removes project-configured registries. Built-in
+  aliases cannot be removed.
 - Search can work from a locally cached index.
 
 Later registry work can add an HTTP API, package ownership, download metrics,

@@ -29,4 +29,12 @@ skillkit registry add
 skillkit registry remove
 ```
 
+Registry packages use `@registry/skill-name` references:
+
+```text
+skillkit add @codex/github
+skillkit add @claude/code-review
+skillkit add @opencode/rust-workflow
+```
+
 See [docs/FEATURE_PLAN.md](docs/FEATURE_PLAN.md) for the working feature plan.
